@@ -110,14 +110,14 @@ def detect_and_crop(image_path, output_folder, single_padding):
                 output_path = os.path.join(output_folder, f"{name}_crop{i}.jpg")
                 cv2.imwrite(output_path, resized_img)
                 print(f"Cropped image saved to {output_path}")
-                
+
     else:
         for out in outs:
             for detection in out:
                 scores = detection[5:]
                 class_id = np.argmax(scores)
                 confidence = scores[class_id]
-                if confidence > 0.01 and class_id in CLASS_INDICES.values():
+                if confidence > 0.6 and class_id in CLASS_INDICES.values():
                     # Salva l'immagine intera
                     base_filename = os.path.basename(image_path)
                     name, ext = os.path.splitext(base_filename)
