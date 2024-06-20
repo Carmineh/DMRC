@@ -22,13 +22,17 @@ except IndexError:
 # Creazione della cartella di output se non esiste [./output_data]
 directory_name = "output_data"
 current_dir = os.getcwd()
-if not os.path.exists(directory_name):
+if os.path.exists(directory_name):
+    os.rmdir(directory_name)
+    print(f"Directory '{directory_name}' deleted")
     os.makedirs(directory_name)
-    print(f"Directory '{directory_name}' created in '{current_dir}'")
+    print(f"Directory '{directory_name}' created")
 else:
+    os.makedirs(directory_name)
     print(f"Directory '{directory_name}' already exists in '{current_dir}'")
 
-IMG_FOLDER = os.path.join(current_dir, directory_name, "/")
+IMG_FOLDER = f"{current_dir}\\{directory_name}\\"
+print(IMG_FOLDER)
 IMG_WIDTH = 480
 IMG_HEIGHT = 480
 
@@ -68,7 +72,20 @@ def main():
     parser.add_argument('--delta-seconds', default=0.05, type=float, help='Set fixed delta seconds, zero for variable frame rate (default: 0.05)')
     parser.add_argument('--timeout', default=60.0, type=float, help='Timeout for CARLA client (default: 60 seconds)')
     parser.add_argument('--spectator-speed', default=100.0, type=float, help='Speed of the spectator (default: 10.0)')
+    parser.add_argument('--disable-cache', action='store_true', help='Disable the usage of cache')
     args = parser.parse_args()
+
+    quality_level = 'Low'
+
+    # Apply the quality level setting
+    os.environ['CARLA_QUALITY_LEVEL'] = quality_level
+
+    disable_cache = args.disable_cache
+        
+    # Disabling cache by setting environment variable
+    if disable_cache:
+        os.environ['CARLA_DISABLE_CACHE'] = '1'
+        print("Cache is disabled.")
 
     IMG_WIDTH, IMG_HEIGHT = map(int, args.res.split('x'))
 
@@ -126,12 +143,20 @@ def main():
 
         # Ottieni il veicolo
         vehicle_bp = world.get_blueprint_library().find('vehicle.tesla.model3')
-        spawn_point = carla.Transform(carla.Location(x=569.050476, y=3501.865967, z=370.496704), carla.Rotation(yaw=90))
+        spawn_point = carla.Transform(carla.Location(x=569.050476, y=3501.865967, z=370.496704), carla.Rotation(yaw=-90))
         vehicle = world.spawn_actor(vehicle_bp, spawn_point)
         print("Vehicle spawned at:", vehicle.get_transform())
 
-        spectator_speed = args.spectator_speed
+        # Attacca la fotocamera al veicolo
+        camera_bp = world.get_blueprint_library().find('sensor.camera.rgb')
+        camera_bp.set_attribute('image_size_x', f"{IMG_WIDTH}")
+        camera_bp.set_attribute('image_size_y', f"{IMG_HEIGHT}")
+        camera_transform = carla.Transform(carla.Location(x=1.5, z=2.4))  # Modifica x, y e z secondo le tue esigenze
+        camera_sensor = world.spawn_actor(camera_bp, camera_transform, attach_to=vehicle)
+        scatta_foto(camera_sensor)
 
+        spectator_speed = args.spectator_speed
+        
         def print_vehicle_position(spectator):
             print("Spectator position after setting:", spectator.get_transform())
 
@@ -140,20 +165,13 @@ def main():
             print_vehicle_position(spectator)
             time.sleep(1)  # Aggiorna ogni secondo
 
-        # Attacca la fotocamera al veicolo
-        # camera_bp = world.get_blueprint_library().find('sensor.camera.rgb')
-        # camera_bp.set_attribute('image_size_x', f"{IMG_WIDTH}")
-        # camera_bp.set_attribute('image_size_y', f"{IMG_HEIGHT}")
-        # camera_transform = carla.Transform(carla.Location(x=1.5, z=2.4))  # Modifica x, y e z secondo le tue esigenze
-        # camera_sensor = world.spawn_actor(camera_bp, camera_transform, attach_to=vehicle)
-
         # # Filtra solo i segnali stradali
         # segnali_stradali = world.get_actors().filter('traffic.stop')
 
         # # Direziona la fotocamera verso i segnali stradali e scatta le foto
         # for segnale in segnali_stradali:
         #     direziona_fotocamera_verso_segnale(camera_sensor, segnale)
-        #     scatta_foto(camera_sensor)
+
 
         # Attendi qualche secondo per catturare le immagini
         #time.sleep(5)
