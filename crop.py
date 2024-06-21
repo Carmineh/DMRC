@@ -65,8 +65,18 @@ def crop_image_principal(main_input_folder, main_output_folder, leaf_dirs, singl
                 image_path = os.path.join(input_folder, filename)
                 detect_and_crop(image_path, output_folder, single_padding)
 
+#gi passiamo il path dell'immagine, la cartella di output, il grado di affinità della detection e l'immagine ritagliata
+def save_image(image_path, output_folder, counter, resized_img):
+    base_filename = os.path.basename(image_path)
+    name, ext = os.path.splitext(base_filename)
+    output_path = os.path.join(output_folder, f"{name}_crop{counter}.jpg")
+    cv2.imwrite(output_path, resized_img)
+    print(f"Cropped image saved to {output_path}")
+
+
 def detect_and_crop(image_path, output_folder, single_padding):
     global NET, OUTPUT_LAYER, CLASS_INDICES
+    range_confidence = 0
     img = cv2.imread(image_path)
     height, width, nonciserve= img.shape
     blob = cv2.dnn.blobFromImage(img, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
@@ -84,8 +94,10 @@ def detect_and_crop(image_path, output_folder, single_padding):
                 class_id = np.argmax(scores)
                 confidence = scores[class_id]
                 if confidence > 0.4 and class_id in CLASS_INDICES.values():
+                    #calcola le coordinate del centro dell'oggetto detectato
                     center_x = int(detection[0] * width)
                     center_y = int(detection[1] * height)
+                    #altezza e larghezza della bounding box
                     w = int(detection[2] * width)
                     h = int(detection[3] * height)
                     
@@ -94,10 +106,11 @@ def detect_and_crop(image_path, output_folder, single_padding):
                     x = max(int(center_x - side / 2), 0)
                     y = max(int(center_y - side / 2), 0)
                     side = min(side, width - x, height - y)
+                    #i 4 dati che servono poi per poter effettuare il confronto tra le varie bounding box, centro e lati
                     boxes.append([x, y, side, side])
                     confidences.append(float(confidence))
                     class_ids.append(class_id)
-    
+        #se non c'è la confidenza di 0.4 e il grado di sovrapposizione tra le varie bounding box è inferiore a 0.6 scarta quello con confidenza inferiore
         indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.4, 0.6)
 
         for i in range(len(boxes)):
@@ -105,11 +118,7 @@ def detect_and_crop(image_path, output_folder, single_padding):
                 x, y, side, _ = boxes[i]
                 cropped_img = img[y:y+side, x:x+side]
                 resized_img = cv2.resize(cropped_img, (480, 480))
-                base_filename = os.path.basename(image_path)
-                name, ext = os.path.splitext(base_filename)
-                output_path = os.path.join(output_folder, f"{name}_crop{i}.jpg")
-                cv2.imwrite(output_path, resized_img)
-                print(f"Cropped image saved to {output_path}")
+                save_image(image_path, output_folder, i, resized_img)
 
     else:
         for out in outs:
@@ -117,13 +126,13 @@ def detect_and_crop(image_path, output_folder, single_padding):
                 scores = detection[5:]
                 class_id = np.argmax(scores)
                 confidence = scores[class_id]
-                if confidence > 0.6 and class_id in CLASS_INDICES.values():
+                if "STOP" in output_folder:
+                    range_confidence = 0.2
+                else:
+                    range_confidence = 0.6
+                if confidence > range_confidence and class_id in CLASS_INDICES.values():
                     # Salva l'immagine intera
-                    base_filename = os.path.basename(image_path)
-                    name, ext = os.path.splitext(base_filename)
-                    output_path = os.path.join(output_folder, f"{name}_{class_id}.jpg")
-                    cv2.imwrite(output_path, img)
-                    print(f"Full image saved to {output_path}")
+                    save_image(image_path, output_folder, "original", img)
 
 if __name__ == "__main__":
     main()
