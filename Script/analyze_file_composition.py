@@ -4,9 +4,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 def analyze_files_in_directory(base_dir, categories):
-    """
-    Analyze the composition of files in the given directory.
-    """
     data = []
     weather_conditions = ['clearnoon', 'clearnight', 'fognoon', 'fognight', 
                           'hardrainnoon', 'hardrainnight', 'midrainnoon', 'midrainnight']

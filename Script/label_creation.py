@@ -3,9 +3,6 @@ import random
 from sklearn.model_selection import train_test_split
 
 def get_files_from_directory(directory):
-    """
-    Get a list of all files in a directory and its subdirectories.
-    """
     file_list = []
     for root, dirs, files in os.walk(directory):
         for file in files:
@@ -13,17 +10,11 @@ def get_files_from_directory(directory):
     return file_list
 
 def split_data(files, train_size=0.7, val_size=0.15, test_size=0.15):
-    """
-    Split the files into train, validation, and test sets.
-    """
     train_files, temp_files = train_test_split(files, train_size=train_size)
     val_files, test_files = train_test_split(temp_files, test_size=test_size/(val_size+test_size))
     return train_files, val_files, test_files
 
 def save_files_to_directory(files, output_dir):
-    """
-    Save files to the specified directory.
-    """
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     for file in files:
