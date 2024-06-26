@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-def analyze_files_in_directory(base_dir, categories):
+def analyze_files_in_directory(base_dir, base_augmented_dir, categories):
     data = []
     weather_conditions = ['clearnoon', 'clearnight', 'fognoon', 'fognight', 
                           'hardrainnoon', 'hardrainnight', 'midrainnoon', 'midrainnight']
@@ -14,6 +14,18 @@ def analyze_files_in_directory(base_dir, categories):
             for file in files:
                 file_path = os.path.join(root, file)
                 file_type = 'origin' if 'original' in file.lower() else 'cropped'
+                condition = 'unknown'
+                for weather in weather_conditions:
+                    if weather in file.lower():
+                        condition = weather
+                        break
+                data.append({'Category': category, 'File_Type': file_type, 'Condition': condition, 'File_Path': file_path})
+        
+        augmented_dir = os.path.join(base_augmented_dir, category)
+        for root, dirs, files in os.walk(augmented_dir):
+            for file in files:
+                file_path = os.path.join(root, file)
+                file_type = 'origin_augmented' if 'original' in file.lower() else 'cropped'
                 condition = 'unknown'
                 for weather in weather_conditions:
                     if weather in file.lower():
@@ -72,9 +84,10 @@ def visualize_data(file_path):
 
 def main():
     base_dir = 'C:\\Users\\rocco\\OneDrive\\Desktop\\DMRC-1\\PROCESSED_Dataset\\PROCESSED_Dataset'
+    base_augmented_dir = 'C:\\Users\\rocco\\OneDrive\\Desktop\\DMRC-1\\PROCESSED_Dataset\\augmented_dataset'
     categories = ['SPEED_LIMITER_30', 'SPEED_LIMITER_60', 'SPEED_LIMITER_90', 'STOP_SIGN']
     
-    df = analyze_files_in_directory(base_dir, categories)
+    df = analyze_files_in_directory(base_dir, base_augmented_dir, categories)
     print(df.head())
     
     # Save the composition of files in a CSV
