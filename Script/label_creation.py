@@ -1,6 +1,9 @@
 import os
 import random
+import numpy as np
 from sklearn.model_selection import train_test_split
+from keras.utils import to_categorical
+import tensorflow as tf
 
 def get_files_from_directory(directory):
     file_list = []
@@ -9,31 +12,90 @@ def get_files_from_directory(directory):
             file_list.append(os.path.join(root, file))
     return file_list
 
-def split_data(files, train_size=0.7, val_size=0.15, test_size=0.15):
-    train_files, temp_files = train_test_split(files, train_size=train_size)
-    val_files, test_files = train_test_split(temp_files, test_size=test_size/(val_size+test_size))
-    return train_files, val_files, test_files
+def load_tensor(file_path):
+    tensor = np.load(file_path)
+    if tensor.ndim == 4 and tensor.shape[0] == 1:
+        tensor = tensor.squeeze(axis=0)  # Rimuove la dimensione extra se presente
+    return tensor
 
-def save_files_to_directory(files, output_dir):
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+def create_dataset_and_labels(files, label):
+    tensors = []
+    labels = []
     for file in files:
-        os.symlink(file, os.path.join(output_dir, os.path.basename(file)))
+        tensor = load_tensor(file)
+        tensors.append(tensor)
+        labels.append(label)
+    return tensors, labels
 
 def main():
-    base_dir = '/mnt/data/PROCESSED_Dataset/PROCESSED_Dataset'
-    categories = ['SPEED_LIMITER_30', 'SPEED_LIMITER_60', 'SPEED_LIMITER_90', 'STOP_SIGN']
-    output_base_dir = '/mnt/data/PROCESSED_Dataset/OUTPUT_Dataset'
+    base_dir = 'C:\\Users\\rocco\\OneDrive\\Desktop\\DMRC-1\\PROCESSED_Dataset'
+    categories = {
+        'SPEED_LIMITER_30': 0,
+        'SPEED_LIMITER_60': 1,
+        'SPEED_LIMITER_90': 2,
+        'STOP_SIGN': 3
+    }
 
-    for category in categories:
-        category_dir = os.path.join(base_dir, category)
-        files = get_files_from_directory(category_dir)
+    train_tensors = []
+    train_labels = []
+    val_tensors = []
+    val_labels = []
+    
+    for category, label in categories.items():
+        category_dir_augmented = os.path.join(base_dir, 'augmented_dataset', category)
+        category_dir_processed = os.path.join(base_dir, 'PROCESSED_Dataset', category)
         
-        train_files, val_files, test_files = split_data(files)
+        files_augmented = get_files_from_directory(category_dir_augmented)
+        files_processed = get_files_from_directory(category_dir_processed)
         
-        save_files_to_directory(train_files, os.path.join(output_base_dir, 'train', category))
-        save_files_to_directory(val_files, os.path.join(output_base_dir, 'val', category))
-        save_files_to_directory(test_files, os.path.join(output_base_dir, 'test', category))
+        original_files = [f for f in files_processed if 'original' in f.lower()]
+        non_original_files = [f for f in files_processed if 'original' not in f.lower()]
+        
+        # Calculate the total number of files
+        total_files = len(original_files) + len(non_original_files) + len(files_augmented)
+        number_of_validation_set = int(total_files * 0.10)
+        # Split original files into training and validation sets
+        val_files_original = random.sample(original_files, number_of_validation_set)
+        val_files_nonoriginal = random.sample(non_original_files, number_of_validation_set)
+        val_files = val_files_original + val_files_nonoriginal
+        train_files_partial = [f for f in original_files + non_original_files if f not in val_files]
+        
+        train_files = train_files_partial + files_augmented
+        
+        train_tensors_category, train_labels_category = create_dataset_and_labels(train_files, label)
+        train_tensors.extend(train_tensors_category)
+        train_labels.extend(train_labels_category)
+        
+        val_tensors_category, val_labels_category = create_dataset_and_labels(val_files, label)
+        val_tensors.extend(val_tensors_category)
+        val_labels.extend(val_labels_category)
+
+    # Convert lists to numpy arrays
+    train_tensors = np.array(train_tensors)
+    train_labels = np.array(train_labels)
+    val_tensors = np.array(val_tensors)
+    val_labels = np.array(val_labels)
+
+    print("Training set tensors shape:", train_tensors.shape)
+    print("Training set labels shape:", train_labels.shape)
+    print("Validation set tensors shape:", val_tensors.shape)
+    print("Validation set labels shape:", val_labels.shape)
+
+    # Directory di output
+    output_dir = 'C:\\Users\\rocco\\OneDrive\\Desktop\\DMRC-1\\OUTPUT_Dataset'
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    # Salva gli array numpy in file
+    np.save(os.path.join(output_dir, 'train_tensors.npy'), train_tensors)
+    np.save(os.path.join(output_dir, 'train_labels.npy'), train_labels)
+    np.save(os.path.join(output_dir, 'val_tensors.npy'), val_tensors)
+    np.save(os.path.join(output_dir, 'val_labels.npy'), val_labels)
+
+    print("Training set tensors saved to train_tensors.npy")
+    print("Training set labels saved to train_labels.npy")
+    print("Validation set tensors saved to val_tensors.npy")
+    print("Validation set labels saved to val_labels.npy")
 
 if __name__ == "__main__":
     main()

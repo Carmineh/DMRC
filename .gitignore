@@ -1,4 +1,7 @@
 yolov3-tiny-obj_5000.weights
 yolov3.weights
 PROCESSED_Dataset/
+OUTPUT_Dataset/
 
+trained-model/model.h5
+trained-model/my_model.keras
