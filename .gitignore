@@ -3,3 +3,5 @@ yolov3.weights
 PROCESSED_Dataset/
 OUTPUT_Dataset/
 
+trained-model/model.h5
+trained-model/my_model.keras
