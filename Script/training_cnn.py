@@ -102,15 +102,6 @@ def main():
     # Compilazione del modello
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
-    # Configurazione per l'uso della NPU (se supportata)
-    try:
-        physical_devices = tf.config.experimental.list_physical_devices('NPU')
-        if physical_devices:
-            tf.config.experimental.set_memory_growth(physical_devices[0], True)
-            print("Addestramento sulla NPU")
-    except:
-        print("NPU non disponibile, l'addestramento avverrà su CPU/GPU")
-
     # Addestramento del modello
     model.fit(train_ds, validation_data=val_ds, epochs=10, steps_per_epoch=steps_per_epoch, validation_steps=validation_steps)
 
