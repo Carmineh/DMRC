@@ -1,0 +1,5 @@
+train: dataset/images/train
+val: dataset/images/val
+
+nc: 4  # number of classes
+names: ['30', '60', '90', 'stop']  # list of class names
