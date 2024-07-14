@@ -28,7 +28,7 @@ def create_dataset_and_labels(files, label):
     return tensors, labels
 
 def main():
-    base_dir = 'C:\\Users\\rocco\\OneDrive\\Desktop\\DMRC-1\\PROCESSED_Dataset'
+    base_dir = 'C:\\Users\\rocco\\OneDrive\\Desktop\\PROCESSED_Dataset'
     categories = {
         'SPEED_LIMITER_30': 0,
         'SPEED_LIMITER_60': 1,
@@ -42,25 +42,25 @@ def main():
     val_labels = []
     
     for category, label in categories.items():
-        category_dir_augmented = os.path.join(base_dir, 'augmented_dataset', category)
+        #category_dir_augmented = os.path.join(base_dir, 'augmented_dataset', category)
         category_dir_processed = os.path.join(base_dir, 'PROCESSED_Dataset', category)
         
-        files_augmented = get_files_from_directory(category_dir_augmented)
+        #files_augmented = get_files_from_directory(category_dir_augmented)
         files_processed = get_files_from_directory(category_dir_processed)
         
-        original_files = [f for f in files_processed if 'original' in f.lower()]
+        #original_files = [f for f in files_processed if 'original' in f.lower()]
         non_original_files = [f for f in files_processed if 'original' not in f.lower()]
         
         # Calculate the total number of files
-        total_files = len(original_files) + len(non_original_files) + len(files_augmented)
-        number_of_validation_set = int(total_files * 0.10)
+        total_files =len(non_original_files)
+        number_of_validation_set = int(total_files * 0.20)
         # Split original files into training and validation sets
-        val_files_original = random.sample(original_files, number_of_validation_set)
+        #val_files_original = random.sample(original_files, number_of_validation_set)
         val_files_nonoriginal = random.sample(non_original_files, number_of_validation_set)
-        val_files = val_files_original + val_files_nonoriginal
-        train_files_partial = [f for f in original_files + non_original_files if f not in val_files]
+        val_files =val_files_nonoriginal
+        train_files_partial = [f for f in non_original_files if f not in val_files]
         
-        train_files = train_files_partial + files_augmented
+        train_files = train_files_partial
         
         train_tensors_category, train_labels_category = create_dataset_and_labels(train_files, label)
         train_tensors.extend(train_tensors_category)
@@ -82,7 +82,7 @@ def main():
     print("Validation set labels shape:", val_labels.shape)
 
     # Directory di output
-    output_dir = 'C:\\Users\\rocco\\OneDrive\\Desktop\\DMRC-1\\OUTPUT_Dataset'
+    output_dir = 'C:\\Users\\rocco\\OneDrive\\Desktop\\OUTPUT_Dataset_Nonoriginal'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 

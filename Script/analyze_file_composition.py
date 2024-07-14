@@ -36,10 +36,7 @@ def analyze_files_in_directory(base_dir, base_augmented_dir, categories):
     return pd.DataFrame(data)
 
 def visualize_data(file_path):
-    # Read the CSV file
     df = pd.read_csv(file_path)
-    
-    # Distribution of files per category
     plt.figure(figsize=(10, 6))
     sns.countplot(data=df, x='Category')
     plt.title('Distribution of Files per Category')
@@ -50,7 +47,6 @@ def visualize_data(file_path):
     plt.savefig('figure_distribution\\category_distribution.jpg')
     plt.show()
     
-    # Distribution of files per condition
     plt.figure(figsize=(10, 6))
     sns.countplot(data=df, x='Condition')
     plt.title('Distribution of Files per Condition')
@@ -61,7 +57,6 @@ def visualize_data(file_path):
     plt.savefig('figure_distribution\\condition_distribution.jpg')
     plt.show()
     
-    # Distribution of file types
     plt.figure(figsize=(10, 6))
     sns.countplot(data=df, x='File_Type')
     plt.title('Distribution of Files per Type')
@@ -71,7 +66,6 @@ def visualize_data(file_path):
     plt.savefig('figure_distribution\\file_type_distribution.jpg')
     plt.show()
     
-    # Combined distribution of category and condition
     plt.figure(figsize=(14, 8))
     sns.countplot(data=df, x='Category', hue='Condition')
     plt.title('Distribution of Files per Category and Condition')
@@ -83,8 +77,8 @@ def visualize_data(file_path):
     plt.show()
 
 def main():
-    base_dir = 'C:\\Users\\rocco\\OneDrive\\Desktop\\DMRC-1\\PROCESSED_Dataset\\PROCESSED_Dataset'
-    base_augmented_dir = 'C:\\Users\\rocco\\OneDrive\\Desktop\\DMRC-1\\PROCESSED_Dataset\\augmented_dataset'
+    base_dir = "C:\\Users\\rocco\\OneDrive\\Desktop\\PROCESSED_Dataset\\PROCESSED_Dataset"
+    base_augmented_dir = 'C:\\Users\\rocco\\OneDrive\\Desktop\\PROCESSED_Dataset\\augmented_dataset'
     categories = ['SPEED_LIMITER_30', 'SPEED_LIMITER_60', 'SPEED_LIMITER_90', 'STOP_SIGN']
     
     df = analyze_files_in_directory(base_dir, base_augmented_dir, categories)
