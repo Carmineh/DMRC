@@ -1,7 +1,6 @@
-yolov3-tiny-obj_5000.weights
 yolov3.weights
-
 Assets/PROCESSED_Dataset
 Assets/PROCESSED_TESTING_Dataset
 Assets/OUTPUT_Dataset
-
+trained-model/model.h5
+trained-model/my_model.keras
