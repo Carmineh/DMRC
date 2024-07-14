@@ -28,7 +28,7 @@ pca_path = "C:\\Users\\rocco\\OneDrive\\Desktop\\OUTPUT_Dataset_RandomForest\\pc
 rf = joblib.load(model_path)
 pca = joblib.load(pca_path)
 
-test_dir = 'C:\\Users\\rocco\\OneDrive\\Desktop\\DMRC-1\\Assets\\RAW_TESTING_Dataset'
+test_dir = 'C:\\Users\\rocco\\OneDrive\\Desktop\\DMRC-2\\Assets\\RAW_TESTING_Dataset'
 
 test_datagen = ImageDataGenerator(rescale=1./255)
 test_generator = test_datagen.flow_from_directory(

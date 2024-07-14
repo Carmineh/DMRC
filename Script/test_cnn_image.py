@@ -8,14 +8,14 @@ import seaborn as sns
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 # Carica il modello salvato
-model = load_model("C:\\Users\\rocco\\OneDrive\\Desktop\\OUTPUT_Dataset_Image\\final_model_alexnet.h5", compile=True)
+model = load_model("C:\\Users\\rocco\\OneDrive\\Desktop\\OUTPUT_Dataset_Image\\final_model-78.h5", compile=True)
 
 class_names = {0: 'SPEED_LIMITER_30', 1: 'SPEED_LIMITER_60', 2: 'SPEED_LIMITER_90', 3: 'STOP_SIGN'}
 
-test_dir = 'C:\\Users\\rocco\\OneDrive\\Desktop\\DMRC-1\\Assets\\RAW_TESTING_Dataset'
+test_dir = 'C:\\Users\\rocco\\OneDrive\\Desktop\\DMRC-2\\Assets\\PATCH_TESTING_Dataset'
 
 batch_size = 32
-target_size = (227, 227)
+target_size = (224, 224)
 test_datagen = ImageDataGenerator(rescale=1./255)
 
 test_generator = test_datagen.flow_from_directory(
