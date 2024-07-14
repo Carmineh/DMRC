@@ -27,16 +27,17 @@ import carla
 IMG_FOLDER = ""
 IMG_WIDTH = 480
 IMG_HEIGHT = 480
-TOTAL_PHOTOS = 0 
+TOTAL_PHOTOS = 190
 
 
-directory_name = "output_data\\stop_clearnight"
+directory_name = "output_data\\STOP_SIGN"
 current_dir = os.getcwd()
 if os.path.exists(directory_name):
-    shutil.rmtree(directory_name)
-    print(f"Directory '{directory_name}' deleted")
-    os.makedirs(directory_name)
-    print(f"Directory '{directory_name}' created")
+    # shutil.rmtree(directory_name)
+    # print(f"Directory '{directory_name}' deleted")
+    # os.makedirs(directory_name)
+    # print(f"Directory '{directory_name}' created")
+    print("Folder already exists")
 else:
     os.makedirs(directory_name)
     print(f"Directory '{directory_name}' already exists in '{current_dir}'")
@@ -49,7 +50,7 @@ def get_yaw_from_vector(v):
 def salva_immagine(image):
         global TOTAL_PHOTOS
         TOTAL_PHOTOS += 1
-        image.save_to_disk(IMG_FOLDER + "30_CLEARNIGHT_%d" % TOTAL_PHOTOS)
+        image.save_to_disk(IMG_FOLDER + "STOP_%d" % TOTAL_PHOTOS)
 
 def scatta_foto(sensor):
     global TOTAL_PHOTOS
@@ -183,22 +184,27 @@ def main():
         else:
             world = client.get_world()
 
-
+        # (x=153, y=306.5, z=0.25) => TESTING 30 => ROTATION: 0°
+        # (x=160.303284, y=302.700, z=0.25) => TESTING 60 => -180°
+        # (x=14.143657, y=109.610489, z=0.25)  => TESTING 90 => 0°
+        # (x=31.344999, y=3798.967041, z=373.927063) => TESTING STOP =>
+ 
         if args.vehicle:
             vehicle_bp = world.get_blueprint_library().find("vehicle.tesla.model3")
+            # #x=569.050476, y=3501.865967, z=370.496704 STOP
             spawn_point_12 = carla.Transform(
-                carla.Location(x=569.050476, y=3511.865967, z=370.496704), #x=569.050476, y=3501.865967, z=370.496704
-                carla.Rotation(yaw=-90), #90
+                carla.Location(x=33.5, y=3797, z=370), 
+                carla.Rotation(yaw=90), #90
             )
-            #X=160 => 90 | X=60 => 60 | X=35 => 30
+            #X=160 => 90 | X=60 => 60 | X=35 => 30 | x=569.050476, y=3501.865967, z=370.496704
             spawn_point_02 = carla.Transform(
-                carla.Location(x=35, y=106, z=2), #x=569.050476, y=3501.865967, z=370.496704
-                carla.Rotation(yaw=180), #90
+                carla.Location(x=15, y=109.610489, z=0.25), 
+                carla.Rotation(yaw=0), 
             )
             vehicle = world.spawn_actor(vehicle_bp, spawn_point_12)
-            vehicle.apply_control(carla.VehicleControl(throttle=0.15, steer=0.0))
+            vehicle.apply_control(carla.VehicleControl(throttle=0.2, steer=0.0))
             # print("Vehicle spawned at:", vehicle.get_transform())
-            time.sleep(3)
+            time.sleep(2)
             
             print("Attaching camera...")
             camera_bp = world.get_blueprint_library().find('sensor.camera.rgb')
@@ -210,10 +216,8 @@ def main():
             camera_transform = carla.Transform(carla.Location(x=1, z=2, y= 1.6), carla.Rotation(yaw=15)) #x=yaw=20 for Town12
             camera_sensor = world.spawn_actor(camera_bp, camera_transform, attach_to=vehicle)
             scatta_foto(camera_sensor)
-        time.sleep(25)
-        # while(True):
-        #     continue
-        
+        time.sleep(5)
+
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:

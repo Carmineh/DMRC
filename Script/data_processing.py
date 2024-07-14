@@ -41,7 +41,6 @@ else:
 dataset_folder = get_all_subfolders(dataset_testing_folder)
 
 for folder in dataset_folder:
-    
     print(f"Processing {folder}...")
     if "STOP" in folder:
         class_name = "STOP_SIGN"
@@ -65,7 +64,6 @@ for folder in dataset_folder:
     
     print(f"Finished processing {output_class_folder} images")
 
-# Funzione per ottenere il numero del file
 def get_file_number(file_name):
     match = re.search(r'\d+', file_name)
     if match:
