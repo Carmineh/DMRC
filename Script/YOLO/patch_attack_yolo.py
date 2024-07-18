@@ -5,8 +5,8 @@ import random
 import cv2
 
 
-folder_path = '..\Assets\RAW_TESTING_Dataset\\'
-output_folder = '..\Assets\PATCH_TESTING_Dataset\\'
+folder_path = '..\..\Assets\RAW_TESTING_Dataset\\'
+output_folder = '..\..\Assets\PATCH_TESTING_Dataset4\\'
 
 # Definire variabili globali
 NET = None
@@ -97,10 +97,12 @@ def apply_patch_filter():
         file_list = os.listdir(folder_path2)
 
 
+
         for image_file in file_list:
             # scelta random del filter
-            random_patch = random.randint(1, 4)
-            path_filter = '..\Assets\img\patch\patch' + str(random_patch) + '.png'
+            #random_patch = random.randint(1, 4)
+            #path_filter = '..\Assets\img\patch\patch' + str(random_patch) + '.png'
+            path_filter = '..\..\Assets\img\\newPatch\patch4.png'
             overlay_image = Image.open(path_filter)
 
             # Costruisci il percorso completo del file immagine
