@@ -6,13 +6,14 @@ from sklearn.metrics import confusion_matrix, classification_report, f1_score, p
 import matplotlib.pyplot as plt
 import seaborn as sns
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from sklearn.preprocessing import normalize
 
 # Carica il modello salvato
 model = load_model("C:\\Users\\rocco\\OneDrive\\Desktop\\OUTPUT_Dataset_Image\\final_model-78.h5", compile=True)
 
 class_names = {0: 'SPEED_LIMITER_30', 1: 'SPEED_LIMITER_60', 2: 'SPEED_LIMITER_90', 3: 'STOP_SIGN'}
 
-test_dir = 'C:\\Users\\rocco\\OneDrive\\Desktop\\DMRC-2\\Assets\\PATCH_TESTING_Dataset'
+test_dir = 'C:\\Users\\rocco\\OneDrive\\Desktop\\DMRC-2\\Assets\\RAW_TESTING_Dataset'
 
 batch_size = 32
 target_size = (224, 224)
@@ -25,6 +26,20 @@ test_generator = test_datagen.flow_from_directory(
     class_mode='categorical',
     shuffle=False
 )
+
+
+def plot_confusion_matrix(cm, class_names, title='Confusion Matrix'):
+    """
+    Funzione per plottare una matrice di confusione normalizzata con i tassi di errore.
+    """
+    cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+    
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(cm_normalized, annot=False, cmap="Reds", xticklabels=class_names, yticklabels=class_names, cbar_kws={'label': 'Error Rate'})
+    plt.xlabel('Predicted')
+    plt.ylabel('True')
+    plt.title(title)
+    plt.show()
 
 def evaluate_model(test_generator, model):
     predictions = model.predict(test_generator, steps=test_generator.samples // batch_size + 1)
@@ -39,6 +54,7 @@ def evaluate_model(test_generator, model):
     f1 = f1_score(true_classes, predicted_classes, average='weighted')
     precision = precision_score(true_classes, predicted_classes, average='weighted')
     recall = recall_score(true_classes, predicted_classes, average='weighted')
+    plot_confusion_matrix(cm, class_labels)
     
     # Stampa le metriche
     print("Confusion Matrix:\n", cm)
